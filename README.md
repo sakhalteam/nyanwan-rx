@@ -9,6 +9,14 @@ Built to be playable by a 5-year-old (a grown-up reads the dialogue out
 loud), with a design that grows in complexity as the player grows up — see
 [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
+The presentation is a retro pixel homage to River City Ransom's shop
+screens: HUD on top (portrait, money, item slots), the patient's chart on
+the left, an angled clinic room in the middle, a location-titled choice
+menu with yen prices on the right, and a `NAME: dialogue` bar along the
+bottom. All room art is CSS/emoji placeholder, ready to be swapped for
+real sprites later. The pixel font (Press Start 2P, OFL-licensed, see
+`fonts/OFL.txt`) is self-hosted so everything still works offline.
+
 ## How to play
 
 No build step, no install. It's plain HTML/CSS/JS:
@@ -17,6 +25,9 @@ No build step, no install. It's plain HTML/CSS/JS:
 - **Or serve it:** `python3 -m http.server` in this folder, then visit
   `http://localhost:8000`. This also works great on an iPad on the same
   Wi-Fi (visit `http://<your-computer-ip>:8000`).
+- **GitHub Pages:** everything is static with relative paths, so once the
+  repo has Pages enabled it runs at `sakhalteam.github.io/nyanwan-rx`
+  with no build step.
 
 Progress (yen, trading cards, gems and trophies) is saved automatically in
 the browser via `localStorage`.

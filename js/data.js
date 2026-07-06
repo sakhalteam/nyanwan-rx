@@ -57,25 +57,27 @@ const PET_NAMES = [
   "Pom", "Dango", "Melon", "Tofu", "Ginger", "Snowy", "Pochi",
 ];
 
-/* Tools. Each launches the mini-game named in `game` (see minigames.js). */
+/* Tools. Each launches the mini-game named in `game` (see minigames.js).
+   `fee` is what the tool adds to the visit bill — every tool you use
+   earns a little more yen at checkout. */
 const TOOLS = [
-  { id: "steth",   label: "Stethoscope", emoji: "🩺", game: "heartbeat",
+  { id: "steth",   label: "Stethoscope", emoji: "🩺", game: "heartbeat", fee: 300,
     okLine: "Their heartbeat sounds strong and happy!" },
-  { id: "thermo",  label: "Thermometer", emoji: "🌡️", game: "hold",
+  { id: "thermo",  label: "Thermometer", emoji: "🌡️", game: "hold", fee: 200,
     okLine: "Temperature is just right!" },
-  { id: "light",   label: "Ear Light",   emoji: "🔦", game: "spot",
+  { id: "light",   label: "Ear Light",   emoji: "🔦", game: "spot", fee: 250,
     okLine: "Ears look clean and cozy!" },
-  { id: "xray",    label: "X-ray",       emoji: "☢️", game: "xray",
+  { id: "xray",    label: "X-ray",       emoji: "☢️", game: "xray", fee: 800,
     okLine: "All the bones look great!" },
-  { id: "meds",    label: "Medicine",    emoji: "💊", game: "simon",
+  { id: "meds",    label: "Medicine",    emoji: "💊", game: "simon", fee: 400,
     okLine: "A tasty vitamin, just in case!" },
-  { id: "shot",    label: "Vitamin Shot", emoji: "💉", game: "slider",
+  { id: "shot",    label: "Vitamin Shot", emoji: "💉", game: "slider", fee: 350,
     okLine: "A tiny boost of energy — barely a pinch!" },
-  { id: "bandage", label: "Bandage",     emoji: "🩹", game: "mash",
+  { id: "bandage", label: "Bandage",     emoji: "🩹", game: "mash", fee: 300,
     okLine: "A comfy little wrap, good as new!" },
-  { id: "bath",    label: "Bubble Bath", emoji: "🛁", game: "bubbles",
+  { id: "bath",    label: "Bubble Bath", emoji: "🛁", game: "bubbles", fee: 500,
     okLine: "So fresh and so clean!" },
-  { id: "magic",   label: "Magic Wand",  emoji: "✨", game: "stars",
+  { id: "magic",   label: "Magic Wand",  emoji: "✨", game: "stars", fee: 900,
     okLine: "A sprinkle of sparkles for good luck!" },
 ];
 

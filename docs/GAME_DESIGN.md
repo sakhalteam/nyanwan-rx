@@ -21,6 +21,26 @@ the dialogue). **Design constraint #1:** she must be able to navigate the
 whole loop by herself. **Design constraint #2:** the same game must have
 room to get deeper for a 7- and 9-year-old without a rewrite.
 
+### 1.1 Presentation
+
+A retro pixel homage to River City Ransom's shop screens. The screen is a
+fixed frame and every scene fills the same five regions:
+
+- **Top HUD:** doctor portrait, decorative energy bars, five item slots
+  (they show the most recent thank-you gifts), yen total, pets-healed
+  count, and a ticking wall clock.
+- **Left panel:** the patient chart — pet stats, symptom list, and the
+  exam checklist.
+- **Center:** the angled clinic room (waiting room / exam room / office),
+  drawn with CSS-and-emoji placeholder art to be swapped for real pixel
+  sprites later. Characters walk in from the right.
+- **Right panel:** the location-titled choice menu with a price column
+  (questions are free; tools list the yen they add to the visit bill).
+  A blinking ▶ always marks the suggested next choice — that's how a
+  pre-reader navigates.
+- **Bottom:** the `NAME: dialogue` bar with a typewriter effect — the
+  text a grown-up reads aloud.
+
 ## 2. The core loop
 
 ```
@@ -119,7 +139,9 @@ bumpy bruise). Diagnoses have silly-official names ("Wigglebelly",
 ### 3.3 Economy
 
 - **Now:** yen is a pure score that goes up. Watching the number grow is
-  the whole reward.
+  the whole reward. Every tool used during a visit adds its listed fee to
+  the bill (X-ray ¥800, thermometer ¥200…), so playing with extra tools
+  earns a little extra — curiosity is never punished, it's paid.
 - **Tier 2+:** a shop. Spend yen on office decorations, waiting-room
   toys (change patient mix), new tools, clinic upgrades (second exam
   room). Gems/trophies stay unbuyable — only gifts.
