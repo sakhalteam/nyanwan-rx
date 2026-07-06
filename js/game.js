@@ -84,6 +84,19 @@
       <span class="s-emoji" style="font-size:${size}px">${emoji}</span></div>`;
   }
 
+  /* pet/owner with pixel sheets when the case has them, emoji otherwise.
+   * opts.pose picks an animation (spriteImg falls back to idle). */
+  function petS(size, x, y, opts = {}) {
+    const c = currentCase;
+    return (c.petSprite && spriteImg(c.petSprite, opts.pose || "idle", x, y, opts))
+      || sprite(petEmoji(), size, x, y, opts);
+  }
+  function ownerS(size, x, y, opts = {}) {
+    const c = currentCase;
+    return (c.ownerSprite && spriteImg(c.ownerSprite, "idle", x, y, opts))
+      || sprite(c.owner.emoji, size, x, y, opts);
+  }
+
   function setRoom(kind, sprites = "") {
     const decor = {
       waiting: `
@@ -131,10 +144,14 @@
     const gender = Math.random() < 0.5 ? { label: "girl", sign: "♀" } : { label: "boy", sign: "♂" };
     const months = randInt(3, 96);
     const age = months < 12 ? `${months} mo` : `${Math.floor(months / 12)} yr`;
+    const petVariants = SPECIES_SPRITES[species.id];
     currentCase = {
       owner: pick(OWNERS),
       petName: pick(PET_NAMES),
       species, ailment, gender, age,
+      /* pixel sheet variants, chosen once so the pet/owner look stable all visit */
+      petSprite: petVariants ? pick(petVariants) : null,
+      ownerSprite: pick(HUMAN_SPRITES),
       asked: ailment.questions.map(() => false),
       doneTools: [],   // required tools completed
       triedTools: [],  // optional tools played
@@ -207,8 +224,8 @@
     updateHud();
     const c = currentCase;
     setRoom("waiting",
-      sprite(c.owner.emoji, 46, 30, 48, { enter: entering }) +
-      sprite(petEmoji(), 38, 42, 58, { enter: entering, status: STATUS_EMOJI[c.ailment.id] || "😢" }) +
+      ownerS(46, 30, 48, { enter: entering }) +
+      petS(38, 42, 58, { enter: entering, status: STATUS_EMOJI[c.ailment.id] || "😢" }) +
       sprite("🧑‍⚕️", 52, 66, 44));
     chartCase();
     if (entering) {
@@ -242,7 +259,8 @@
     const c = currentCase;
     const cured = c.doneTools.length >= c.ailment.required.length;
     setRoom("exam",
-      sprite(petEmoji(), 44, 45, 55, { status: cured ? "💖" : STATUS_EMOJI[c.ailment.id] || "😢" }) +
+      petS(44, 45, 55, { pose: cured ? "stretch" : "sit",
+        status: cured ? "💖" : STATUS_EMOJI[c.ailment.id] || "😢" }) +
       sprite("🧑‍⚕️", 52, 66, 50));
     chartCase({ checks: true });
 
@@ -310,8 +328,8 @@
     updateHud();
 
     setRoom("waiting",
-      sprite(c.owner.emoji, 46, 32, 48) +
-      sprite(petEmoji(), 38, 44, 58, { status: "💖" }) +
+      ownerS(46, 32, 48) +
+      petS(38, 44, 58, { pose: "run", status: "💖" }) +
       sprite("🧑‍⚕️", 52, 66, 44));
     chartCase({ checks: true });
     setDialogue(c.owner.name, line(pick(THANK_YOUS)) + ` (pays you ¥${c.pay.toLocaleString()})`);

@@ -25,6 +25,13 @@ const SPECIES = [
   { id: "panda",    label: "Panda Cub",      emoji: "🐼", tags: ["furry"] },
   { id: "koala",    label: "Koala",          emoji: "🐨", tags: ["furry"] },
   { id: "monkey",   label: "Monkey",         emoji: "🐒", tags: ["furry"] },
+  // --- unusual patients (have pixel sprites!) ---
+  { id: "bat",      label: "Bat Pup",        emoji: "🦇", tags: ["winged", "tiny"] },
+  { id: "rat",      label: "Fancy Rat",      emoji: "🐀", tags: ["furry", "tiny"] },
+  { id: "hyena",    label: "Hyena Cub",      emoji: "🐺", tags: ["furry"] },
+  { id: "scorpion", label: "Scorpion",       emoji: "🦂", tags: ["scaly", "tiny"] },
+  { id: "snake",    label: "Noodle Snake",   emoji: "🐍", tags: ["scaly"] },
+  { id: "vulture",  label: "Vulture Chick",  emoji: "🦅", tags: ["winged"] },
   // --- fantasy friends ---
   { id: "dragon",   label: "Dragon Hatchling", emoji: "🐉", tags: ["fantasy", "scaly", "winged", "fire"] },
   { id: "unicorn",  label: "Unicorn Foal",     emoji: "🦄", tags: ["fantasy", "furry"] },

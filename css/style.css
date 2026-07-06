@@ -179,6 +179,12 @@ body {
   animation: bob 1.4s ease-in-out infinite;
 }
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.sprite .s-px {
+  image-rendering: pixelated; background-repeat: no-repeat;
+  animation-name: strip-loop; animation-iteration-count: infinite;
+  filter: drop-shadow(0 6px 3px rgba(0,0,0,.35));
+}
+@keyframes strip-loop { from { background-position-x: 0; } to { background-position-x: var(--shift); } }
 .sprite.enter { animation: walk-in 1s ease-out; }
 @keyframes walk-in { from { transform: translateX(340px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes pop-in { from { transform: scale(0); } to { transform: scale(1); } }
