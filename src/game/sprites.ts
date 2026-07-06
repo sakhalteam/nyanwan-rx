@@ -11,7 +11,25 @@
  * Returns null for unknown variants; callers fall back to emoji.
  */
 
-const SPRITES = {
+export interface SpriteDef {
+  cat: "pets" | "humans";
+  frame: number;
+  scale: number;
+  cx: number;
+  foot: number;
+  ch: number;
+  anims: Record<string, number>;
+}
+
+export interface SpriteOpts {
+  enter?: boolean;
+  status?: string;
+  flip?: boolean;
+  scale?: number;
+  pose?: string;
+}
+
+export const SPRITES: Record<string, SpriteDef> = {
   "bat-albino": { cat: "pets", frame: 32, scale: 4, cx: 16, foot: 19, ch: 9, anims: { "fly": 4 } },
   "bat-fire": { cat: "pets", frame: 32, scale: 4, cx: 16, foot: 19, ch: 9, anims: { "fly": 4 } },
   "bat-root": { cat: "pets", frame: 32, scale: 4, cx: 16, foot: 19, ch: 9, anims: { "fly": 4 } },
@@ -56,7 +74,7 @@ const SPRITES = {
   "punk": { cat: "humans", frame: 48, scale: 2, cx: 13, foot: 48, ch: 34, anims: { "attack": 6, "attack-2": 8, "attack-3": 8, "double-jump": 6, "idle": 4, "jump": 4, "punch": 6, "run": 6, "run-attack": 6 } },};
 
 /* which sheet variants can stand in for a species; absent = emoji placeholder */
-const SPECIES_SPRITES = {
+export const SPECIES_SPRITES: Record<string, string[]> = {
   dog: ["dog-golden-retriever", "dog-akita", "dog-great-dane", "dog-schnauzer",
         "dog-saint-bernard", "dog-husky", "dog-shiba", "dog-doberman"],
   cat: ["cat-01", "cat-02", "cat-03", "cat-04", "cat-05", "cat-06", "cat-07", "cat-08"],
@@ -71,14 +89,14 @@ const SPECIES_SPRITES = {
   vulture: ["vulture"],
 };
 
-const HUMAN_SPRITES = Object.keys(SPRITES).filter(id => SPRITES[id].cat === "humans");
+export const HUMAN_SPRITES = Object.keys(SPRITES).filter(id => SPRITES[id].cat === "humans");
 
 const FRAME_MS = 120; // per animation frame
 
 /* Animated strip element. (x%, y%) matches the emoji sprites' anchor —
  * roughly the top-left of a ~40px emoji — so the artwork's feet are placed
  * at anchor + (20px, 44px), same as an emoji's feet. */
-function spriteImg(id, anim, x, y, opts = {}) {
+export function spriteImg(id: string, anim: string, x: number, y: number, opts: SpriteOpts = {}): string | null {
   const s = SPRITES[id];
   if (!s) return null;
   const a = s.anims[anim] ? anim : (s.anims.idle ? "idle" : Object.keys(s.anims)[0]);
@@ -87,7 +105,7 @@ function spriteImg(id, anim, x, y, opts = {}) {
   const px = s.frame * k;
   const style = [
     `width:${px}px`, `height:${px}px`,
-    `background-image:url(assets/sprites/${s.cat}/${id}/${a}.png)`,
+    `background-image:url(${import.meta.env.BASE_URL}assets/sprites/${s.cat}/${id}/${a}.png)`,
     `background-size:${frames * px}px ${px}px`,
     `--shift:${-frames * px}px`,
     `animation-duration:${frames * FRAME_MS}ms`,

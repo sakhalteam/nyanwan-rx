@@ -2,21 +2,85 @@
    Retro shop-menu presentation: the screen is a fixed frame —
    HUD on top, patient chart on the left, angled room in the middle,
    a location-titled choice menu on the right, and a "NAME: dialogue"
-   bar along the bottom. Each screen fills those regions. */
+   bar along the bottom. Each screen fills those regions.
 
-(() => {
-  const $ = id => document.getElementById(id);
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-  const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+   The engine drives the frame imperatively (innerHTML per region),
+   River City Ransom shop-screen style; React renders the frame once
+   in App.tsx and hands control over via initGame(). */
+
+import { SPECIES, OWNERS, PET_NAMES, TOOLS, AILMENTS, GIFTS, THANK_YOUS } from "./data";
+import type { Ailment, Gift, Owner, Species } from "./data";
+import { SPECIES_SPRITES, HUMAN_SPRITES, spriteImg } from "./sprites";
+import type { SpriteOpts } from "./sprites";
+import { Minigames, Sound } from "./minigames";
+
+interface Card {
+  petName: string;
+  species: string;
+  emoji: string;
+  gender: string;
+  sign: string;
+  age: string;
+  owner: string;
+  diagnosis: string;
+  fee: number;
+  fancy: boolean;
+  date: string;
+}
+
+interface Case {
+  owner: Owner;
+  petName: string;
+  species: Species;
+  ailment: Ailment;
+  gender: { label: string; sign: string };
+  age: string;
+  petSprite: string | null;
+  ownerSprite: string;
+  asked: boolean[];
+  doneTools: string[];
+  triedTools: string[];
+  rewarded: boolean;
+  pay?: number;
+  gift?: Gift | null;
+  card?: Card;
+}
+
+interface MenuItem {
+  label?: string;
+  price?: string;
+  onTap?: () => void;
+  marked?: boolean;
+  done?: boolean;
+  note?: string;
+}
+
+interface SaveData {
+  yen: number;
+  healed: number;
+  cards: Card[];
+  gifts: Gift[];
+}
+
+let booted = false;
+
+/** Boot the clinic inside the already-rendered frame (see App.tsx). */
+export function initGame() {
+  if (booted) return; // React StrictMode mounts effects twice in dev
+  booted = true;
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)];
+  const randInt = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1));
 
   /* ---------- save data ---------- */
   const SAVE_KEY = "nyanwanrx-save-v1";
-  let save = { yen: 0, healed: 0, cards: [], gifts: [] };
+  let save: SaveData = { yen: 0, healed: 0, cards: [], gifts: [] };
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) save = Object.assign(save, JSON.parse(raw));
-  } catch (e) { /* fresh start is fine */ }
-  const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+  } catch { /* fresh start is fine */ }
+  const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch { /* ok */ } };
 
   /* ---------- HUD ---------- */
   function updateHud() {
@@ -34,15 +98,15 @@
   }
 
   /* ---------- frame region helpers ---------- */
-  function el(tag, cls, html) {
+  function el(tag: string, cls: string, html?: string) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
     if (html !== undefined) e.innerHTML = html;
     return e;
   }
 
-  let typeTimer = null;
-  function setDialogue(speaker, text) {
+  let typeTimer: ReturnType<typeof setInterval> | undefined;
+  function setDialogue(speaker: string, text: string) {
     clearInterval(typeTimer);
     $("dlg-speaker").textContent = speaker ? speaker.toUpperCase() + ":" : "";
     const target = $("dlg-text");
@@ -55,8 +119,7 @@
     }, 16);
   }
 
-  /* menu items: { label, price?, onTap, marked?, done?, note? } */
-  function setMenu(title, items) {
+  function setMenu(title: string, items: MenuItem[]) {
     const m = $("menu");
     m.innerHTML = "";
     m.appendChild(el("h3", "", title));
@@ -71,14 +134,14 @@
     });
   }
 
-  function setChart(html) { $("chart").innerHTML = html; }
+  function setChart(html: string) { $("chart").innerHTML = html; }
 
   /* ---------- room scenes (CSS/emoji placeholder art) ---------- */
-  function prop(emoji, size, x, y, extra = "") {
+  function prop(emoji: string, size: number, x: number, y: number, extra = "") {
     return `<div class="prop" style="left:${x}%;top:${y}%;${extra}">
       <span class="p-emoji" style="font-size:${size}px">${emoji}</span></div>`;
   }
-  function sprite(emoji, size, x, y, opts = {}) {
+  function sprite(emoji: string, size: number, x: number, y: number, opts: SpriteOpts = {}) {
     return `<div class="sprite${opts.enter ? " enter" : ""}" style="left:${x}%;top:${y}%">
       ${opts.status ? `<span class="s-status">${opts.status}</span>` : ""}
       <span class="s-emoji" style="font-size:${size}px">${emoji}</span></div>`;
@@ -86,18 +149,18 @@
 
   /* pet/owner with pixel sheets when the case has them, emoji otherwise.
    * opts.pose picks an animation (spriteImg falls back to idle). */
-  function petS(size, x, y, opts = {}) {
+  function petS(size: number, x: number, y: number, opts: SpriteOpts = {}) {
     const c = currentCase;
     return (c.petSprite && spriteImg(c.petSprite, opts.pose || "idle", x, y, opts))
       || sprite(petEmoji(), size, x, y, opts);
   }
-  function ownerS(size, x, y, opts = {}) {
+  function ownerS(size: number, x: number, y: number, opts: SpriteOpts = {}) {
     const c = currentCase;
     return (c.ownerSprite && spriteImg(c.ownerSprite, "idle", x, y, opts))
       || sprite(c.owner.emoji, size, x, y, opts);
   }
 
-  function setRoom(kind, sprites = "") {
+  function setRoom(kind: "waiting" | "exam" | "office", sprites = "") {
     const decor = {
       waiting: `
         ${prop("🖼️", 34, 8, 22)} ${prop("🪟", 44, 30, 20)} ${prop("📋", 30, 50, 24)}
@@ -120,17 +183,17 @@
       `<div class="room-wall"></div><div class="room-floor"></div>${decor}${sprites}`;
   }
 
-  function setRoomPage(html) {
+  function setRoomPage(html: string) {
     const page = el("div", "room-page", html);
     $("room").appendChild(page);
     return page;
   }
 
   /* ---------- current patient ---------- */
-  let currentCase = null;
+  let currentCase: Case = null as unknown as Case; // set by newCase() before any case screen
   let renderCurrent = () => showTitle();
 
-  const STATUS_EMOJI = {
+  const STATUS_EMOJI: Record<string, string> = {
     tummy: "🤢", sniffles: "🤧", paw: "🤕", ear: "😖", itchy: "😫",
     sleepy: "💤", throat: "🐸", hiccups: "💫", wing: "🤕", sparkle: "🌫️",
     overheat: "🥵", static: "⚡", muddy: "🟤", tooth: "😬", bump: "💫",
@@ -159,11 +222,11 @@
     };
   }
 
-  const line = s => s.replaceAll("{pet}", currentCase.petName);
+  const line = (s: string) => s.replaceAll("{pet}", currentCase.petName);
   const petEmoji = () => currentCase.species.emoji;
 
   /* ---------- chart contents ---------- */
-  function chartCase(opts = {}) {
+  function chartCase(opts: { checks?: boolean } = {}) {
     const c = currentCase;
     let h = `<h3>📋 CHART</h3>
       <div class="c-row">PATIENT <b>${c.petName}</b></div>
@@ -208,7 +271,7 @@
     setDialogue("Nyanwan Rx", save.healed
       ? `Welcome back, Doctor! ${save.healed} happy patients so far. Ready for more?`
       : "A tiny clinic is waiting for its doctor. That's you! Ring the bell to open up.");
-    const items = [
+    const items: MenuItem[] = [
       { label: "Open the Clinic", marked: true, onTap: () => { newCase(); showIntake(); } },
     ];
     if (save.cards.length) {
@@ -236,7 +299,7 @@
     function renderMenu() {
       const next = c.asked.findIndex(v => !v);
       setMenu("~ Waiting Room ~", [
-        ...c.ailment.questions.map((q, i) => ({
+        ...c.ailment.questions.map((q, i): MenuItem => ({
           label: line(q.q),
           done: c.asked[i],
           marked: i === next,
@@ -274,7 +337,7 @@
     }
 
     setDialogue("You", `Okay ${c.petName}, up on the table. Let's see what's going on... (pick a ▶ tool!)`);
-    const items = TOOLS.map(tool => {
+    const items = TOOLS.map((tool): MenuItem => {
       const needed = c.ailment.required.some(r => r.tool === tool.id) && !c.doneTools.includes(tool.id);
       const used = c.doneTools.includes(tool.id) || c.triedTools.includes(tool.id);
       return {
@@ -332,7 +395,7 @@
       petS(38, 44, 58, { pose: "run", status: "💖" }) +
       sprite("🧑‍⚕️", 52, 66, 44));
     chartCase({ checks: true });
-    setDialogue(c.owner.name, line(pick(THANK_YOUS)) + ` (pays you ¥${c.pay.toLocaleString()})`);
+    setDialogue(c.owner.name, line(pick(THANK_YOUS)) + ` (pays you ¥${c.pay!.toLocaleString()})`);
 
     const afterCard = () => setMenu("~ Front Desk ~", [
       { label: "Next patient!", marked: true, onTap: () => { newCase(); showIntake(); } },
@@ -343,18 +406,18 @@
     setMenu("~ Front Desk ~", [
       { label: "Collect payment", price: `${c.pay}`, marked: true,
         onTap: () => { showCardCeremony(c, afterCard); } },
-      { note: `Visit fee ¥${c.pay.toLocaleString()} — includes every tool you used!` },
+      { note: `Visit fee ¥${c.pay!.toLocaleString()} — includes every tool you used!` },
     ]);
   }
 
   /* card (+ maybe gift) presented in a modal, RCR-panel styled */
-  function showCardCeremony(c, onClose) {
+  function showCardCeremony(c: Case, onClose: () => void) {
     const modal = $("modal"), content = $("modal-content");
     content.innerHTML = "";
     content.appendChild(el("h2", "", "★ NEW PATIENT CARD ★"));
-    content.appendChild(cardScene(c.card));
+    content.appendChild(cardScene(c.card!));
     content.appendChild(el("div", "flip-hint", "tap the card to flip it over!"));
-    content.appendChild(el("div", "pay-line", `+¥${c.pay.toLocaleString()}`));
+    content.appendChild(el("div", "pay-line", `+¥${c.pay!.toLocaleString()}`));
     if (c.gift) {
       content.appendChild(el("div", "gem-gift",
         `<span class="g">${c.gift.emoji}</span>${c.petName} left you a ${c.gift.label}!<br>It's in your item slots + office shelf!`));
@@ -368,7 +431,7 @@
   }
 
   /* ---------- trading cards ---------- */
-  function cardScene(card) {
+  function cardScene(card: Card) {
     const scene = el("div", "card-scene");
     const t = el("div", "tcard" + (card.fancy ? " fancy" : ""));
     const front = el("div", "face front",
@@ -421,4 +484,4 @@
   }
 
   showTitle();
-})();
+}

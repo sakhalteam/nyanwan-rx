@@ -3,17 +3,19 @@
    A miss gets a friendly "almost!" and play continues until success,
    which always ends in three stars and a cheer. */
 
+import type { Tool } from "./data";
+
 /* ---------- tiny synth sounds (no audio files) ---------- */
-const Sound = (() => {
-  let ctx = null;
-  function ac() {
+export const Sound = (() => {
+  let ctx: AudioContext | null = null;
+  function ac(): AudioContext | null {
     if (!ctx) {
-      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
+      try { ctx = new AudioContext(); } catch { return null; }
     }
     if (ctx.state === "suspended") ctx.resume();
     return ctx;
   }
-  function tone(freq, dur = 0.12, type = "sine", vol = 0.18, when = 0) {
+  function tone(freq: number, dur = 0.12, type: OscillatorType = "sine", vol = 0.18, when = 0) {
     const a = ac();
     if (!a) return;
     const o = a.createOscillator(), g = a.createGain();
@@ -34,14 +36,25 @@ const Sound = (() => {
 })();
 
 /* ---------- shared framework ---------- */
-const Minigames = (() => {
-  const modal = () => document.getElementById("modal");
-  const content = () => document.getElementById("modal-content");
-  const rand = (a, b) => a + Math.random() * (b - a);
+interface MgUi {
+  stage: HTMLDivElement;
+  msg: HTMLDivElement;
+  stars: HTMLDivElement;
+}
+interface MgCtx {
+  petEmoji: string;
+}
+type Resolve = () => void;
+type Game = (ui: MgUi, ctx: MgCtx, resolve: Resolve) => void;
+
+export const Minigames = (() => {
+  const modal = () => document.getElementById("modal")!;
+  const content = () => document.getElementById("modal-content")!;
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
   let running = false; // rAF loops check this
 
-  function build(title, instructions, opts = {}) {
+  function build(title: string, instructions: string, opts: { dark?: boolean } = {}): MgUi {
     running = true;
     content().innerHTML = "";
     const h = document.createElement("h2");
@@ -58,7 +71,7 @@ const Minigames = (() => {
     return { stage, msg, stars };
   }
 
-  function finish(ui, resolve) {
+  function finish(ui: MgUi, resolve: Resolve) {
     running = false;
     ui.stars.textContent = "⭐⭐⭐";
     ui.msg.textContent = "Great job, Doctor!";
@@ -67,22 +80,22 @@ const Minigames = (() => {
   }
 
   /* ---- 1. heartbeat: tap the heart when it beats BIG ---- */
-  function heartbeat(ui, ctx, resolve) {
+  const heartbeat: Game = (ui, _ctx, resolve) => {
     ui.stage.innerHTML = `<div class="hb-ring"></div><div class="hb-heart">❤️</div>`;
-    const heart = ui.stage.querySelector(".hb-heart");
-    const ring = ui.stage.querySelector(".hb-ring");
+    const heart = ui.stage.querySelector<HTMLElement>(".hb-heart")!;
+    const ring = ui.stage.querySelector<HTMLElement>(".hb-ring")!;
     let hits = 0;
     const NEED = 3;
     const show = () => { ui.msg.textContent = `Tap the heart when it's BIG! ${"💗".repeat(hits)}${"🤍".repeat(NEED - hits)}`; };
     show();
     let phase = 0;
-    function loop(t) {
+    function loop(t: number) {
       if (!running) return;
       phase = (Math.sin(t / 350) + 1) / 2; // 0..1
       const s = 0.7 + phase * 0.7;
       heart.style.transform = `scale(${s})`;
       ring.style.transform = `scale(${s * 1.3})`;
-      ring.style.opacity = phase * 0.8;
+      ring.style.opacity = String(phase * 0.8);
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
@@ -96,17 +109,17 @@ const Minigames = (() => {
         ui.msg.textContent = "Almost! Wait for the BIG beat... 💓";
       }
     });
-  }
+  };
 
   /* ---- 2. hold: press and hold to fill, let go in the green ---- */
-  function hold(ui, ctx, resolve) {
+  const hold: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
         <div style="font-size:3.5rem">🌡️ ${ctx.petEmoji}</div>
         <div class="meter"><div class="zone" style="left:55%;width:35%"></div><div class="fill"></div></div>
         <div style="font-size:1rem;opacity:.75">Press and HOLD anywhere... let go in the green!</div>
       </div>`;
-    const fill = ui.stage.querySelector(".fill");
+    const fill = ui.stage.querySelector<HTMLElement>(".fill")!;
     let level = 0, holding = false;
     ui.msg.textContent = "Hold to warm it up! 👇";
     function loop() {
@@ -132,10 +145,11 @@ const Minigames = (() => {
     };
     ui.stage.addEventListener("pointerup", release);
     ui.stage.addEventListener("pointerleave", release);
-  }
+  };
 
   /* ---- 3/4. spot & xray: find and tap the sparkly thing ---- */
-  function findSpot(ui, ctx, resolve, { target, need, msgText }) {
+  function findSpot(ui: MgUi, ctx: MgCtx, resolve: Resolve,
+                    { target, need, msgText }: { target: string; need: number; msgText: string }) {
     ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
     let found = 0;
     const show = () => { ui.msg.textContent = `${msgText} ${"⭐".repeat(found)}${"⬜".repeat(need - found)}`; };
@@ -159,18 +173,17 @@ const Minigames = (() => {
     }
     place();
   }
-  const spot = (ui, ctx, resolve) =>
+  const spot: Game = (ui, ctx, resolve) =>
     findSpot(ui, ctx, resolve, { target: "✨", need: 3, msgText: "Find the sparkly spots and tap them!" });
-  const xray = (ui, ctx, resolve) =>
+  const xray: Game = (ui, ctx, resolve) =>
     findSpot(ui, ctx, resolve, { target: "🦴", need: 2, msgText: "Look closely... tap what you find in the X-ray!" });
 
   /* ---- 5. simon: repeat the medicine-bottle pattern ---- */
-  function simon(ui, ctx, resolve) {
+  const simon: Game = (ui, _ctx, resolve) => {
     const flavors = ["🍓", "🍋", "🫐"];
-    const notes = [440, 554, 659];
     ui.stage.innerHTML = `<div class="simon-row"></div>`;
-    const row = ui.stage.querySelector(".simon-row");
-    const btns = flavors.map((f, i) => {
+    const row = ui.stage.querySelector<HTMLElement>(".simon-row")!;
+    const btns = flavors.map(f => {
       const b = document.createElement("button");
       b.className = "simon-b";
       b.textContent = f;
@@ -179,7 +192,7 @@ const Minigames = (() => {
     });
     const seq = Array.from({ length: 3 }, () => Math.floor(Math.random() * 3));
     let pos = 0, accepting = false;
-    function light(i, d = 0) {
+    function light(i: number, d = 0) {
       setTimeout(() => {
         if (!running) return;
         btns[i].classList.add("lit");
@@ -213,21 +226,22 @@ const Minigames = (() => {
       }
     }));
     playback();
-  }
+  };
 
   /* ---- 6. slider: stop the bouncing marker in the green ---- */
-  function slider(ui, ctx, resolve) {
+  const slider: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
         <div style="font-size:3.5rem">💉 ${ctx.petEmoji}</div>
         <div class="meter"><div class="zone" style="left:35%;width:30%"></div><div class="marker"></div></div>
         <button class="big-btn" style="font-size:1.3rem">STOP! ✋</button>
       </div>`;
-    const marker = ui.stage.querySelector(".marker");
-    const btn = ui.stage.querySelector("button");
+    const marker = ui.stage.querySelector<HTMLElement>(".marker")!;
+    const btn = ui.stage.querySelector<HTMLElement>("button")!;
     ui.msg.textContent = "Tap STOP when the stick is in the green!";
-    let t0 = performance.now(), x = 0;
-    function loop(t) {
+    const t0 = performance.now();
+    let x = 0;
+    function loop(t: number) {
       if (!running) return;
       x = (Math.sin((t - t0) / 480) + 1) / 2; // 0..1 back and forth
       marker.style.left = `calc(${x * 100}% - 5px)`;
@@ -239,17 +253,17 @@ const Minigames = (() => {
       if (x >= 0.35 && x <= 0.65) finish(ui, resolve);
       else { Sound.almost(); ui.msg.textContent = "Almost! Watch it swing back... 🎯"; }
     });
-  }
+  };
 
   /* ---- 7. mash: tap tap tap to wrap the bandage ---- */
-  function mash(ui, ctx, resolve) {
+  const mash: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
         <div class="mash-target">${ctx.petEmoji}</div>
         <div class="wrap-bar"><div class="fill"></div></div>
       </div>`;
-    const target = ui.stage.querySelector(".mash-target");
-    const fill = ui.stage.querySelector(".wrap-bar .fill");
+    const target = ui.stage.querySelector<HTMLElement>(".mash-target")!;
+    const fill = ui.stage.querySelector<HTMLElement>(".wrap-bar .fill")!;
     const NEED = 8;
     let taps = 0;
     ui.msg.textContent = "Tap the patient to wrap the bandage! 🩹";
@@ -262,10 +276,10 @@ const Minigames = (() => {
       if (taps === Math.ceil(NEED / 2)) ui.msg.textContent = "Halfway there — keep wrapping! 🌀";
       if (taps >= NEED) finish(ui, resolve);
     });
-  }
+  };
 
   /* ---- 8. bubbles: pop them all ---- */
-  function bubbles(ui, ctx, resolve) {
+  const bubbles: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
     const NEED = 6;
     let popped = 0;
@@ -288,10 +302,10 @@ const Minigames = (() => {
       });
       ui.stage.appendChild(b);
     }
-  }
+  };
 
   /* ---- 9. stars: catch the magic stars one by one ---- */
-  function stars(ui, ctx, resolve) {
+  const stars: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
     const NEED = 4;
     let caught = 0;
@@ -315,12 +329,12 @@ const Minigames = (() => {
       ui.stage.appendChild(s);
     }
     place();
-  }
+  };
 
-  const GAMES = { heartbeat, hold, spot, xray, simon, slider, mash, bubbles, stars };
+  const GAMES: Record<string, Game> = { heartbeat, hold, spot, xray, simon, slider, mash, bubbles, stars };
 
   /* Play a tool's mini-game. Resolves when the player succeeds. */
-  function play(tool, ctx) {
+  function play(tool: Tool, ctx: MgCtx): Promise<void> {
     return new Promise(resolve => {
       const ui = build(`${tool.emoji} ${tool.label}`, "", { dark: tool.game === "xray" });
       GAMES[tool.game](ui, ctx, resolve);

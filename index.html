@@ -4,47 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>🐾 Nyanwan Rx — Pet Clinic</title>
-<link rel="stylesheet" href="css/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
 </head>
 <body>
-<div id="frame">
-
-  <!-- top HUD: portrait, bars, yen, item slots, clock -->
-  <header id="hud">
-    <div id="hud-left">
-      <div id="portrait">🧑‍⚕️</div>
-      <div id="hud-meta">
-        <div class="bar green"><div class="bar-fill"></div></div>
-        <div class="bar red"><div class="bar-fill"></div></div>
-        <div id="slots"></div>
-        <div id="hud-yen">¥0</div>
-      </div>
-    </div>
-    <div id="hud-center">にゃんワン Rx ・ NYANWAN CLINIC</div>
-    <div id="hud-right">
-      <span id="hud-healed">💖 0</span>
-      <div id="clock"><div id="clock-hand"></div></div>
-    </div>
-  </header>
-
-  <!-- middle: chart | room | menu -->
-  <div id="mid">
-    <aside id="chart" class="panel"></aside>
-    <main id="room"></main>
-    <aside id="menu" class="panel"></aside>
-  </div>
-
-  <!-- bottom dialogue bar -->
-  <footer id="dialogue">
-    <span id="dlg-speaker"></span><span id="dlg-text"></span>
-  </footer>
-
-  <div id="modal" class="hidden"><div id="modal-content"></div></div>
-</div>
-<script src="js/data.js"></script>
-<script src="js/sprites.js"></script>
-<script src="js/minigames.js"></script>
-<script src="js/game.js"></script>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

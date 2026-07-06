@@ -2,7 +2,7 @@
    Everything here is plain data. To add an animal, an ailment,
    or a name, just add an entry — no other code changes needed. */
 
-const SPECIES = [
+export const SPECIES = [
   // --- real animals ---
   { id: "dog",      label: "Puppy",          emoji: "🐕", tags: ["furry"] },
   { id: "cat",      label: "Kitten",         emoji: "🐈", tags: ["furry"] },
@@ -47,7 +47,7 @@ const SPECIES = [
   { id: "jigglypuff", label: "Jigglypuff", emoji: "🎀🎈", tags: ["pocket", "tiny"] },
 ];
 
-const OWNERS = [
+export const OWNERS = [
   { name: "Yuki",   emoji: "👧" }, { name: "Kenta",  emoji: "👦" },
   { name: "Hana",   emoji: "👩" }, { name: "Sora",   emoji: "🧑" },
   { name: "Sakura", emoji: "👩‍🦰" }, { name: "Riko",   emoji: "👧🏽" },
@@ -57,7 +57,7 @@ const OWNERS = [
   { name: "Momoka", emoji: "👩‍🦱" }, { name: "Daichi", emoji: "🧔" },
 ];
 
-const PET_NAMES = [
+export const PET_NAMES = [
   "Mochi", "Momo", "Taro", "Luna", "Kuro", "Shiro", "Azuki", "Choco",
   "Pudding", "Nori", "Sushi", "Biscuit", "Poppy", "Peanut", "Maple",
   "Coco", "Yuzu", "Hoshi", "Sora", "Bubbles", "Waffle", "Ume", "Kiki",
@@ -67,7 +67,7 @@ const PET_NAMES = [
 /* Tools. Each launches the mini-game named in `game` (see minigames.js).
    `fee` is what the tool adds to the visit bill — every tool you use
    earns a little more yen at checkout. */
-const TOOLS = [
+export const TOOLS = [
   { id: "steth",   label: "Stethoscope", emoji: "🩺", game: "heartbeat", fee: 300,
     okLine: "Their heartbeat sounds strong and happy!" },
   { id: "thermo",  label: "Thermometer", emoji: "🌡️", game: "hold", fee: 200,
@@ -92,7 +92,7 @@ const TOOLS = [
    tags: which species can have it ("any" = everyone).
    questions: follow-ups; each answer adds a symptom chip to the chart.
    required: tools that cure it, each with the finding it reveals.  */
-const AILMENTS = [
+export const AILMENTS = [
   {
     id: "tummy", diagnosis: "the Wigglebelly", tags: ["any"], pay: [500, 900],
     ownerLine: "{pet} has a sore tummy and keeps rolling around groaning!",
@@ -291,7 +291,7 @@ const AILMENTS = [
 ];
 
 /* Gifts a grateful pet sometimes leaves behind (~30% of visits). */
-const GIFTS = [
+export const GIFTS = [
   { emoji: "💎", label: "Sparkling Gem" },
   { emoji: "🏆", label: "Golden Trophy" },
   { emoji: "🔮", label: "Mystic Orb" },
@@ -304,10 +304,17 @@ const GIFTS = [
   { emoji: "🌟", label: "Fallen Star" },
 ];
 
-const THANK_YOUS = [
+export const THANK_YOUS = [
   "Thank you so much, Doctor! You're the best vet in town!",
   "Look how happy {pet} is! We can't thank you enough!",
   "Amazing! {pet} feels better already! Thank you, Doctor!",
   "You fixed {pet} right up! We'll tell all our friends about this clinic!",
   "{pet} wants to give you a big thank-you nuzzle, Doctor!",
 ];
+
+/* ---------- derived types ---------- */
+export type Species = (typeof SPECIES)[number];
+export type Owner = (typeof OWNERS)[number];
+export type Tool = (typeof TOOLS)[number];
+export type Ailment = (typeof AILMENTS)[number];
+export type Gift = (typeof GIFTS)[number];

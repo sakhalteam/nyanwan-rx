@@ -5,7 +5,7 @@
 
 @font-face {
   font-family: "Press Start 2P";
-  src: url("../fonts/press-start-2p-latin.woff2") format("woff2");
+  src: url("./fonts/press-start-2p-latin.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -297,3 +297,16 @@ body {
   #hud-center { display: none; }
   #dialogue { min-height: 60px; font-size: 11px; }
 }
+
+/* shared sakhalteam home button */
+.home-btn {
+  /* bottom-right: nyanwan's HUD occupies the usual top-left spot */
+  position: fixed; right: 12px; bottom: 10px; z-index: 40;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 8px; border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(6px);
+  font-family: var(--px); font-size: 9px; color: var(--cyan);
+  text-decoration: none; opacity: 0.75;
+}
+.home-btn:hover { opacity: 1; color: var(--white); border-color: rgba(255, 255, 255, 0.2); }
