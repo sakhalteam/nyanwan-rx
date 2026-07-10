@@ -38,6 +38,22 @@ that mix is the intended workflow while sourcing art.
 **New pack?** Normalize names to the convention, re-run the scan to regen SPRITES,
 add variants to SPECIES_SPRITES (and maybe a new species in data.ts).
 
+The 2026-07 mini-pets pack (Ninja Adventure, 53 variants) uses 2-frame loops:
+single-view animals are `idle.png`; barnyard/lion variants pair a front-facing
+`idle.png` with a side-view `run.png` (checkout walk-away). Scale rule is
+clamp(round(target/ch), 1, 4). Each of those variant folders also keeps a
+`faceset.png` portrait (38×38, excluded from the anim scan) — unused so far,
+earmarked for trading-card art. The full source pack (109MB: monsters, NPCs,
+FX, audio) lives outside the repo at `~/Code/_art-packs/`.
+
+Pokemon (53 variants, 2026-07): Ranger overworld walk cycles extracted as
+4-cell ping-pong strips (f0,f1,f2,f1) + two B2W2 battle idles (snivy,
+oshawott ~24 frames). Species = evolution line named for its base stage
+(`gastly` covers haunter/gengar); `petType()` in game.ts shows the variant's
+own name on the chart/cards for pocket species. `spriteInline(id, px)` renders
+any variant as a content-cropped inline-block (uses the `cw` metric) — that's
+what the minigames use in place of emoji via `ctx.petArt(px)`.
+
 ## Verify
 `npm run build` (tsc + vite), then drive the real flow — headless Edge via
 playwright-core (`channel: "msedge"`, no browser download) against `vite preview`:

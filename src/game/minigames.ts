@@ -42,7 +42,9 @@ interface MgUi {
   stars: HTMLDivElement;
 }
 interface MgCtx {
-  petEmoji: string;
+  /* returns the patient's art sized ~px tall: pixel sprite when the case
+   * has one (see spriteInline), emoji text otherwise */
+  petArt: (px: number) => string;
 }
 type Resolve = () => void;
 type Game = (ui: MgUi, ctx: MgCtx, resolve: Resolve) => void;
@@ -115,7 +117,7 @@ export const Minigames = (() => {
   const hold: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
-        <div style="font-size:3.5rem">🌡️ ${ctx.petEmoji}</div>
+        <div style="font-size:3.5rem">🌡️ ${ctx.petArt(56)}</div>
         <div class="meter"><div class="zone" style="left:55%;width:35%"></div><div class="fill"></div></div>
         <div style="font-size:1rem;opacity:.75">Press and HOLD anywhere... let go in the green!</div>
       </div>`;
@@ -150,7 +152,7 @@ export const Minigames = (() => {
   /* ---- 3/4. spot & xray: find and tap the sparkly thing ---- */
   function findSpot(ui: MgUi, ctx: MgCtx, resolve: Resolve,
                     { target, need, msgText }: { target: string; need: number; msgText: string }) {
-    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
+    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petArt(136)}</div>`;
     let found = 0;
     const show = () => { ui.msg.textContent = `${msgText} ${"⭐".repeat(found)}${"⬜".repeat(need - found)}`; };
     show();
@@ -232,7 +234,7 @@ export const Minigames = (() => {
   const slider: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
-        <div style="font-size:3.5rem">💉 ${ctx.petEmoji}</div>
+        <div style="font-size:3.5rem">💉 ${ctx.petArt(56)}</div>
         <div class="meter"><div class="zone" style="left:35%;width:30%"></div><div class="marker"></div></div>
         <button class="big-btn" style="font-size:1.3rem">STOP! ✋</button>
       </div>`;
@@ -259,7 +261,7 @@ export const Minigames = (() => {
   const mash: Game = (ui, ctx, resolve) => {
     ui.stage.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
-        <div class="mash-target">${ctx.petEmoji}</div>
+        <div class="mash-target">${ctx.petArt(86)}</div>
         <div class="wrap-bar"><div class="fill"></div></div>
       </div>`;
     const target = ui.stage.querySelector<HTMLElement>(".mash-target")!;
@@ -280,7 +282,7 @@ export const Minigames = (() => {
 
   /* ---- 8. bubbles: pop them all ---- */
   const bubbles: Game = (ui, ctx, resolve) => {
-    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
+    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petArt(136)}</div>`;
     const NEED = 6;
     let popped = 0;
     ui.msg.textContent = "Pop all the bubbles to scrub-a-dub! 🛁";
@@ -306,7 +308,7 @@ export const Minigames = (() => {
 
   /* ---- 9. stars: catch the magic stars one by one ---- */
   const stars: Game = (ui, ctx, resolve) => {
-    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petEmoji}</div>`;
+    ui.stage.innerHTML = `<div class="mg-pet-bg">${ctx.petArt(136)}</div>`;
     const NEED = 4;
     let caught = 0;
     const show = () => { ui.msg.textContent = `Catch the magic stars! ${"🌟".repeat(caught)}${"⬜".repeat(NEED - caught)}`; };

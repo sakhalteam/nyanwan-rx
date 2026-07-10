@@ -10,7 +10,7 @@
 
 import { SPECIES, OWNERS, PET_NAMES, TOOLS, AILMENTS, GIFTS, THANK_YOUS } from "./data";
 import type { Ailment, Gift, Owner, Species } from "./data";
-import { SPECIES_SPRITES, HUMAN_SPRITES, spriteImg } from "./sprites";
+import { SPECIES_SPRITES, HUMAN_SPRITES, spriteImg, spriteInline } from "./sprites";
 import type { SpriteOpts } from "./sprites";
 import { Minigames, Sound } from "./minigames";
 
@@ -224,13 +224,24 @@ export function initGame() {
 
   const line = (s: string) => s.replaceAll("{pet}", currentCase.petName);
   const petEmoji = () => currentCase.species.emoji;
+  /* what the chart calls the patient — pocket variants are real pokemon,
+   * so a "gastly" case examining a gengar says Gengar */
+  const petType = () => {
+    const c = currentCase;
+    return c.species.tags.includes("pocket") && c.petSprite
+      ? c.petSprite.charAt(0).toUpperCase() + c.petSprite.slice(1)
+      : c.species.label;
+  };
+  /* patient art for minigame stages: sprite at ~px tall, else emoji */
+  const petArt = (px: number) =>
+    (currentCase.petSprite && spriteInline(currentCase.petSprite, px)) || petEmoji();
 
   /* ---------- chart contents ---------- */
   function chartCase(opts: { checks?: boolean } = {}) {
     const c = currentCase;
     let h = `<h3>📋 CHART</h3>
       <div class="c-row">PATIENT <b>${c.petName}</b></div>
-      <div class="c-row">TYPE <b>${c.species.label}</b></div>
+      <div class="c-row">TYPE <b>${petType()}</b></div>
       <div class="c-row">SEX <b>${c.gender.sign} ${c.gender.label}</b></div>
       <div class="c-row">AGE <b>${c.age}</b></div>
       <div class="c-row">OWNER <b>${c.owner.name}</b></div>
@@ -346,7 +357,7 @@ export function initGame() {
         marked: needed,
         done: used,
         onTap: async () => {
-          await Minigames.play(tool, { petEmoji: petEmoji() });
+          await Minigames.play(tool, { petArt });
           const req = c.ailment.required.find(r => r.tool === tool.id);
           if (req && !c.doneTools.includes(tool.id)) {
             c.doneTools.push(tool.id);
@@ -375,7 +386,7 @@ export function initGame() {
       c.pay = base + extras;
       c.gift = Math.random() < 0.3 ? pick(GIFTS) : null;
       c.card = {
-        petName: c.petName, species: c.species.label, emoji: c.species.emoji,
+        petName: c.petName, species: petType(), emoji: c.species.emoji,
         gender: c.gender.label, sign: c.gender.sign, age: c.age,
         owner: c.owner.name, diagnosis: c.ailment.diagnosis,
         fee: c.pay, fancy: c.species.tags.includes("fantasy") || c.species.tags.includes("pocket"),
