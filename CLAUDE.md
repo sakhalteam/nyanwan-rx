@@ -46,13 +46,25 @@ clamp(round(target/ch), 1, 4). Each of those variant folders also keeps a
 earmarked for trading-card art. The full source pack (109MB: monsters, NPCs,
 FX, audio) lives outside the repo at `~/Code/_art-packs/`.
 
-Pokemon (53 variants, 2026-07): Ranger overworld walk cycles extracted as
+Pokemon (61 variants, 2026-07): Ranger overworld walk cycles extracted as
 4-cell ping-pong strips (f0,f1,f2,f1) + two B2W2 battle idles (snivy,
-oshawott ~24 frames). Species = evolution line named for its base stage
-(`gastly` covers haunter/gengar); `petType()` in game.ts shows the variant's
-own name on the chart/cards for pocket species. `spriteInline(id, px)` renders
-any variant as a content-cropped inline-block (uses the `cw` metric) — that's
-what the minigames use in place of emoji via `ctx.petArt(px)`.
+oshawott ~24 frames) + the 8 eeveelutions under species `eevee`. Species =
+evolution line named for its base stage (`gastly` covers haunter/gengar);
+`petType()` in game.ts shows the variant's own name on the chart/cards for
+pocket species. `spriteInline(id, px)` renders any variant as a
+content-cropped inline-block (uses the `cw` metric) — minigames use it via
+`ctx.petArt(px)`, and trading cards store `card.sprite` for their portrait.
+
+Humans: `doctor` (idle=clipboard / talk=lecturing / think=pondering — game
+screens pick the anim via `docS()`) is excluded from the HUMAN_SPRITES owner
+pool; owners are the 6 fighter sprites + 10 gacha chibis (knight, bard,
+witch, swordsman, mage, samurai, potbot, ranger, rogue, dancer — "golem"
+was renamed potbot to dodge the pokemon golem).
+
+Rooms: waiting/exam are baked GBA interiors at `assets/rooms/{consult,exam}.png`
+(cropped from the Hoenn interior sheet, source in ~/Code/_art-packs/nyanwan-src/),
+drawn by `.room-scene` (cover, pixelated) with a `.room-wipe` shutter between
+different rooms; office is still the CSS placeholder room.
 
 ## Verify
 `npm run build` (tsc + vite), then drive the real flow — headless Edge via

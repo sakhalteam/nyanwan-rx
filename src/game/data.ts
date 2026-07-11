@@ -115,6 +115,8 @@ export const TOOLS = [
     okLine: "A tiny boost of energy — barely a pinch!" },
   { id: "bandage", label: "Bandage",     emoji: "🩹", game: "mash", fee: 300,
     okLine: "A comfy little wrap, good as new!" },
+  { id: "tweeze",  label: "Tweezers",    emoji: "🥢", game: "splinters", fee: 350,
+    okLine: "No prickles anywhere — smooth and comfy!" },
   { id: "bath",    label: "Bubble Bath", emoji: "🛁", game: "bubbles", fee: 500,
     okLine: "So fresh and so clean!" },
   { id: "magic",   label: "Magic Wand",  emoji: "✨", game: "stars", fee: 900,
@@ -306,6 +308,19 @@ export const AILMENTS = [
     required: [
       { tool: "light", finding: "Open wide... there's the grumbly tooth, a bit wiggly!" },
       { tool: "meds",  finding: "Numbing gel and a tooth-fix — chomping restored!" },
+    ],
+  },
+  {
+    id: "splinter", diagnosis: "the Prickle-Prickles", tags: ["any"], pay: [600, 1000],
+    ownerLine: "{pet} rolled right into a prickly bush and now there are tiny splinters everywhere!",
+    questions: [
+      { q: "How did {pet} find a prickly bush?", a: "Chasing a butterfly behind the garden shed!", symptom: "Butterfly chase incident" },
+      { q: "Does it hurt to pet {pet}?", a: "{pet} says 'yowch!' when we touch the prickly spots.", symptom: "Ouchy to the touch" },
+      { q: "How many splinters are we talking?", a: "We counted five... then {pet} wiggled away.", symptom: "At least 5 prickles" },
+    ],
+    required: [
+      { tool: "tweeze",  finding: "There they are — tiny prickles! Steady hands... got every last one!" },
+      { tool: "bandage", finding: "A soft comfy wrap so the prickly spots can rest." },
     ],
   },
   {

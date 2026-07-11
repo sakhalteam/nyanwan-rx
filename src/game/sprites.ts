@@ -86,9 +86,12 @@ export const SPRITES: Record<string, SpriteDef> = {
   "dog-white": { cat: "pets", frame: 18, scale: 4, cx: 9, cw: 16, foot: 18, ch: 16, anims: { "idle": 2 } },
   "dog-yellow": { cat: "pets", frame: 21, scale: 4, cx: 10, cw: 19, foot: 21, ch: 16, anims: { "idle": 2 } },
   "donkey-gray": { cat: "pets", frame: 23, scale: 4, cx: 11, cw: 16, foot: 23, ch: 16, anims: { "idle": 2, "run": 2 } },
+  "eevee": { cat: "pets", frame: 23, scale: 3, cx: 11, cw: 20, foot: 23, ch: 23, anims: { "idle": 4 } },
+  "espeon": { cat: "pets", frame: 33, scale: 2, cx: 16, cw: 32, foot: 33, ch: 33, anims: { "idle": 4 } },
   "fish-red": { cat: "pets", frame: 16, scale: 4, cx: 8, cw: 15, foot: 12, ch: 8, anims: { "idle": 2 } },
   "fish-white": { cat: "pets", frame: 16, scale: 4, cx: 8, cw: 15, foot: 12, ch: 8, anims: { "idle": 2 } },
   "fish-yellow": { cat: "pets", frame: 16, scale: 4, cx: 8, cw: 14, foot: 12, ch: 8, anims: { "idle": 2 } },
+  "flareon": { cat: "pets", frame: 31, scale: 2, cx: 15, cw: 28, foot: 31, ch: 31, anims: { "idle": 4 } },
   "frog-bandana": { cat: "pets", frame: 16, scale: 4, cx: 7, cw: 11, foot: 13, ch: 10, anims: { "idle": 2 } },
   "frog-blue-blue": { cat: "pets", frame: 48, scale: 4, cx: 21, cw: 21, foot: 33, ch: 16, anims: { "idle": 8 } },
   "frog-blue-brown": { cat: "pets", frame: 48, scale: 4, cx: 21, cw: 21, foot: 33, ch: 16, anims: { "idle": 8 } },
@@ -103,6 +106,7 @@ export const SPRITES: Record<string, SpriteDef> = {
   "geodude": { cat: "pets", frame: 37, scale: 2, cx: 18, cw: 34, foot: 37, ch: 24, anims: { "idle": 4 } },
   "gible": { cat: "pets", frame: 28, scale: 2, cx: 14, cw: 24, foot: 28, ch: 28, anims: { "idle": 4 } },
   "girafarig": { cat: "pets", frame: 38, scale: 2, cx: 19, cw: 28, foot: 38, ch: 38, anims: { "idle": 4 } },
+  "glaceon": { cat: "pets", frame: 35, scale: 2, cx: 17, cw: 27, foot: 35, ch: 31, anims: { "idle": 4 } },
   "golem": { cat: "pets", frame: 32, scale: 2, cx: 15, cw: 31, foot: 32, ch: 31, anims: { "idle": 4 } },
   "graveler": { cat: "pets", frame: 32, scale: 2, cx: 15, cw: 31, foot: 32, ch: 28, anims: { "idle": 4 } },
   "hamster-brown": { cat: "pets", frame: 15, scale: 4, cx: 7, cw: 12, foot: 15, ch: 13, anims: { "idle": 2 } },
@@ -119,6 +123,7 @@ export const SPRITES: Record<string, SpriteDef> = {
   "hyena-brown": { cat: "pets", frame: 14, scale: 4, cx: 7, cw: 12, foot: 14, ch: 13, anims: { "idle": 2 } },
   "hyena-gray": { cat: "pets", frame: 14, scale: 4, cx: 8, cw: 12, foot: 14, ch: 13, anims: { "idle": 2 } },
   "ivysaur": { cat: "pets", frame: 32, scale: 2, cx: 15, cw: 31, foot: 32, ch: 32, anims: { "idle": 4 } },
+  "jolteon": { cat: "pets", frame: 31, scale: 2, cx: 15, cw: 24, foot: 31, ch: 31, anims: { "idle": 4 } },
   "jumpluff": { cat: "pets", frame: 27, scale: 2, cx: 13, cw: 25, foot: 27, ch: 24, anims: { "idle": 4 } },
   "kabuto": { cat: "pets", frame: 22, scale: 3, cx: 10, cw: 21, foot: 22, ch: 17, anims: { "idle": 4 } },
   "kabutops": { cat: "pets", frame: 32, scale: 2, cx: 15, cw: 29, foot: 32, ch: 32, anims: { "idle": 4 } },
@@ -127,6 +132,7 @@ export const SPRITES: Record<string, SpriteDef> = {
   "koffing": { cat: "pets", frame: 25, scale: 3, cx: 12, cw: 19, foot: 25, ch: 21, anims: { "idle": 4 } },
   "krabby": { cat: "pets", frame: 26, scale: 3, cx: 13, cw: 26, foot: 26, ch: 22, anims: { "idle": 4 } },
   "lapras": { cat: "pets", frame: 51, scale: 1, cx: 25, cw: 44, foot: 51, ch: 51, anims: { "idle": 4 } },
+  "leafeon": { cat: "pets", frame: 30, scale: 2, cx: 15, cw: 24, foot: 30, ch: 30, anims: { "idle": 4 } },
   "lion-cub": { cat: "pets", frame: 16, scale: 4, cx: 7, cw: 12, foot: 13, ch: 11, anims: { "idle": 2 } },
   "lion-cub-pink": { cat: "pets", frame: 16, scale: 4, cx: 7, cw: 12, foot: 13, ch: 11, anims: { "idle": 2 } },
   "lion-orange": { cat: "pets", frame: 30, scale: 3, cx: 15, cw: 16, foot: 30, ch: 23, anims: { "idle": 2, "run": 2 } },
@@ -169,16 +175,29 @@ export const SPRITES: Record<string, SpriteDef> = {
   "snake": { cat: "pets", frame: 48, scale: 4, cx: 33, cw: 28, foot: 48, ch: 15, anims: { "idle": 4, "walk": 4 } },
   "snivy": { cat: "pets", frame: 39, scale: 2, cx: 19, cw: 29, foot: 39, ch: 33, anims: { "idle": 6 } },
   "swampert": { cat: "pets", frame: 78, scale: 2, cx: 39, cw: 32, foot: 78, ch: 38, anims: { "idle": 4 } },
+  "umbreon": { cat: "pets", frame: 29, scale: 2, cx: 14, cw: 24, foot: 29, ch: 27, anims: { "idle": 4 } },
+  "vaporeon": { cat: "pets", frame: 35, scale: 2, cx: 17, cw: 32, foot: 35, ch: 27, anims: { "idle": 4 } },
   "venusaur": { cat: "pets", frame: 46, scale: 1, cx: 22, cw: 45, foot: 46, ch: 42, anims: { "idle": 4 } },
   "vulture": { cat: "pets", frame: 48, scale: 2, cx: 30, cw: 27, foot: 48, ch: 26, anims: { "idle": 4, "walk": 4 } },
   "weezing": { cat: "pets", frame: 31, scale: 2, cx: 15, cw: 31, foot: 31, ch: 29, anims: { "idle": 4 } },
   "xatu": { cat: "pets", frame: 47, scale: 1, cx: 23, cw: 22, foot: 47, ch: 45, anims: { "idle": 4 } },
+  "bard": { cat: "humans", frame: 66, scale: 1, cx: 33, cw: 46, foot: 66, ch: 62, anims: { "idle": 8 } },
   "biker": { cat: "humans", frame: 48, scale: 2, cx: 13, cw: 19, foot: 48, ch: 34, anims: { "attack": 6, "attack-2": 8, "attack-3": 8, "double-jump": 6, "idle": 4, "jump": 4, "punch": 6, "run": 6, "run-attack": 6 } },
   "cyborg": { cat: "humans", frame: 48, scale: 2, cx: 12, cw: 19, foot: 48, ch: 35, anims: { "attack": 6, "attack-2": 8, "attack-3": 8, "double-jump": 6, "idle": 4, "jump": 4, "punch": 6, "run": 6, "run-attack": 6 } },
+  "dancer": { cat: "humans", frame: 73, scale: 1, cx: 36, cw: 54, foot: 73, ch: 72, anims: { "idle": 11 } },
+  "doctor": { cat: "humans", frame: 88, scale: 1, cx: 44, cw: 32, foot: 88, ch: 88, anims: { "idle": 6, "talk": 8, "think": 4 } },
   "evil-wizard": { cat: "humans", frame: 140, scale: 1, cx: 73, cw: 33, foot: 97, ch: 53, anims: { "idle": 10, "run": 8, "walk": 8 } },
   "huntress": { cat: "humans", frame: 100, scale: 2, cx: 51, cw: 32, foot: 67, ch: 36, anims: { "attack": 6, "idle": 10, "run": 8 } },
+  "knight": { cat: "humans", frame: 51, scale: 2, cx: 25, cw: 47, foot: 51, ch: 51, anims: { "idle": 4 } },
+  "mage": { cat: "humans", frame: 76, scale: 1, cx: 38, cw: 76, foot: 76, ch: 54, anims: { "idle": 12 } },
   "martial-hero": { cat: "humans", frame: 126, scale: 2, cx: 68, cw: 44, foot: 82, ch: 39, anims: { "attack": 7, "attack-2": 6, "attack-3": 9, "idle": 10, "run": 8 } },
+  "potbot": { cat: "humans", frame: 57, scale: 1, cx: 28, cw: 53, foot: 57, ch: 57, anims: { "idle": 8 } },
   "punk": { cat: "humans", frame: 48, scale: 2, cx: 13, cw: 17, foot: 48, ch: 34, anims: { "attack": 6, "attack-2": 8, "attack-3": 8, "double-jump": 6, "idle": 4, "jump": 4, "punch": 6, "run": 6, "run-attack": 6 } },
+  "ranger": { cat: "humans", frame: 74, scale: 1, cx: 37, cw: 74, foot: 74, ch: 65, anims: { "idle": 4 } },
+  "rogue": { cat: "humans", frame: 76, scale: 1, cx: 38, cw: 76, foot: 76, ch: 60, anims: { "idle": 4 } },
+  "samurai": { cat: "humans", frame: 67, scale: 1, cx: 33, cw: 67, foot: 67, ch: 60, anims: { "idle": 8 } },
+  "swordsman": { cat: "humans", frame: 88, scale: 1, cx: 44, cw: 70, foot: 88, ch: 66, anims: { "idle": 8 } },
+  "witch": { cat: "humans", frame: 64, scale: 1, cx: 31, cw: 63, foot: 64, ch: 60, anims: { "idle": 4 } },
 };
 
 /* which sheet variants can stand in for a species; absent = emoji placeholder */
@@ -216,6 +235,7 @@ export const SPECIES_SPRITES: Record<string, string[]> = {
    * the variant's name (Title Case) instead of the species label */
   pikachu: ["pichu"],
   squirtle: ["blastoise"],
+  eevee: ["eevee", "vaporeon", "jolteon", "flareon", "espeon", "umbreon", "leafeon", "glaceon"],
   snivy: ["snivy"],
   oshawott: ["oshawott"],
   bidoof: ["bidoof", "bibarel"],
@@ -243,7 +263,8 @@ export const SPECIES_SPRITES: Record<string, string[]> = {
   natu: ["natu", "xatu"],
 };
 
-export const HUMAN_SPRITES = Object.keys(SPRITES).filter(id => SPRITES[id].cat === "humans");
+/* owner pool: every human sheet except the player's own doctor */
+export const HUMAN_SPRITES = Object.keys(SPRITES).filter(id => SPRITES[id].cat === "humans" && id !== "doctor");
 
 const FRAME_MS = 120; // per animation frame
 

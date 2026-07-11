@@ -18,6 +18,7 @@ interface Card {
   petName: string;
   species: string;
   emoji: string;
+  sprite?: string | null; // pixel variant the patient actually wore (old saves: absent)
   gender: string;
   sign: string;
   age: string;
@@ -159,28 +160,29 @@ export function initGame() {
     return (c.ownerSprite && spriteImg(c.ownerSprite, "idle", x, y, opts))
       || sprite(c.owner.emoji, size, x, y, opts);
   }
+  /* the vet herself — anim matches what she's doing on this screen */
+  function docS(anim: "idle" | "talk" | "think", x: number, y: number, opts: SpriteOpts = {}) {
+    return spriteImg("doctor", anim, x, y, opts) || sprite("🧑‍⚕️", 52, x, y, opts);
+  }
 
+  /* waiting/exam are baked GBA-interior scenes (assets/rooms/); switching
+   * between different rooms plays a retro shutter wipe over the new one */
+  let lastRoomKind = "";
   function setRoom(kind: "waiting" | "exam" | "office", sprites = "") {
+    const scene = (name: string) =>
+      `<div class="room-scene" style="background-image:url(${import.meta.env.BASE_URL}assets/rooms/${name}.png)"></div>`;
     const decor = {
-      waiting: `
-        ${prop("🖼️", 34, 8, 22)} ${prop("🪟", 44, 30, 20)} ${prop("📋", 30, 50, 24)}
-        ${prop("🚪", 56, 82, 16)}
-        <div class="counter" style="left:3%;bottom:4%;width:24%;height:17%"></div>
-        ${prop("🪴", 42, 3, 38)} ${prop("🪑", 36, 14, 56)} ${prop("🪑", 36, 24, 60)}
-        <div class="rug"></div>`,
-      exam: `
-        ${prop("🦴", 30, 18, 24)} ${prop("📊", 32, 30, 20)} ${prop("🧪", 30, 48, 24)}
-        ${prop("🚪", 56, 4, 16)} ${prop("💡", 34, 64, 12)}
-        <div class="counter" style="right:2%;bottom:34%;width:18%;height:12%"></div>
-        <div class="counter" style="left:35%;top:63%;width:26%;height:13%"></div>`,
-      office: `
+      waiting: scene("consult"),
+      exam: scene("exam"),
+      office: `<div class="room-wall"></div><div class="room-floor"></div>
         ${prop("🖼️", 34, 12, 22)} ${prop("🪟", 44, 40, 20)} ${prop("📚", 34, 70, 26)}
         <div class="counter" style="left:6%;bottom:6%;width:26%;height:17%"></div>
         ${prop("🪴", 44, 82, 42)}
         <div class="rug"></div>`,
     }[kind] || "";
-    $("room").innerHTML =
-      `<div class="room-wall"></div><div class="room-floor"></div>${decor}${sprites}`;
+    const wipe = lastRoomKind && lastRoomKind !== kind ? `<div class="room-wipe"></div>` : "";
+    lastRoomKind = kind;
+    $("room").innerHTML = `${decor}${sprites}${wipe}`;
   }
 
   function setRoomPage(html: string) {
@@ -277,7 +279,7 @@ export function initGame() {
   function showTitle() {
     renderCurrent = showTitle;
     updateHud();
-    setRoom("waiting", sprite("🧑‍⚕️", 52, 44, 52));
+    setRoom("waiting", docS("idle", 44, 52));
     chartTotals();
     setDialogue("Nyanwan Rx", save.healed
       ? `Welcome back, Doctor! ${save.healed} happy patients so far. Ready for more?`
@@ -300,7 +302,7 @@ export function initGame() {
     setRoom("waiting",
       ownerS(46, 30, 48, { enter: entering }) +
       petS(38, 42, 58, { enter: entering, status: STATUS_EMOJI[c.ailment.id] || "😢" }) +
-      sprite("🧑‍⚕️", 52, 66, 44));
+      docS("talk", 68, 54));
     chartCase();
     if (entering) {
       setDialogue(c.owner.name,
@@ -335,7 +337,7 @@ export function initGame() {
     setRoom("exam",
       petS(44, 45, 55, { pose: cured ? "stretch" : "sit",
         status: cured ? "💖" : STATUS_EMOJI[c.ailment.id] || "😢" }) +
-      sprite("🧑‍⚕️", 52, 66, 50));
+      docS(cured ? "talk" : "think", 66, 50));
     chartCase({ checks: true });
 
     if (cured) {
@@ -386,7 +388,7 @@ export function initGame() {
       c.pay = base + extras;
       c.gift = Math.random() < 0.3 ? pick(GIFTS) : null;
       c.card = {
-        petName: c.petName, species: petType(), emoji: c.species.emoji,
+        petName: c.petName, species: petType(), emoji: c.species.emoji, sprite: c.petSprite,
         gender: c.gender.label, sign: c.gender.sign, age: c.age,
         owner: c.owner.name, diagnosis: c.ailment.diagnosis,
         fee: c.pay, fancy: c.species.tags.includes("fantasy") || c.species.tags.includes("pocket"),
@@ -404,7 +406,7 @@ export function initGame() {
     setRoom("waiting",
       ownerS(46, 32, 48) +
       petS(38, 44, 58, { pose: "run", status: "💖" }) +
-      sprite("🧑‍⚕️", 52, 66, 44));
+      docS("idle", 68, 54));
     chartCase({ checks: true });
     setDialogue(c.owner.name, line(pick(THANK_YOUS)) + ` (pays you ¥${c.pay!.toLocaleString()})`);
 
@@ -446,7 +448,7 @@ export function initGame() {
     const scene = el("div", "card-scene");
     const t = el("div", "tcard" + (card.fancy ? " fancy" : ""));
     const front = el("div", "face front",
-      `<div class="portrait-lg">${card.emoji}</div>` +
+      `<div class="portrait-lg">${(card.sprite && spriteInline(card.sprite, 64)) || card.emoji}</div>` +
       `<div class="pet-name">${card.petName} 💖</div>` +
       `<div class="sub">${card.species}</div>` +
       `<div class="sub">NYANWAN RX ・ HAPPY & HEALTHY</div>`);
@@ -484,7 +486,7 @@ export function initGame() {
     const shelfItems = save.gifts.map(g => `<span title="${g.label}">${g.emoji}</span>`).join("");
     setRoom("office",
       `<div class="shelfcase" style="left:20%;top:16%;width:60%;height:26%">${shelfItems}</div>` +
-      sprite("🧑‍⚕️", 52, 46, 52));
+      docS("idle", 46, 52));
     chartTotals();
     setDialogue("Your Office", save.gifts.length
       ? `${save.gifts.length} thank-you gift${save.gifts.length > 1 ? "s" : ""} from grateful pets, on display forever.`

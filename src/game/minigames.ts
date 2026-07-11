@@ -177,8 +177,78 @@ export const Minigames = (() => {
   }
   const spot: Game = (ui, ctx, resolve) =>
     findSpot(ui, ctx, resolve, { target: "✨", need: 3, msgText: "Find the sparkly spots and tap them!" });
-  const xray: Game = (ui, ctx, resolve) =>
-    findSpot(ui, ctx, resolve, { target: "🦴", need: 2, msgText: "Look closely... tap what you find in the X-ray!" });
+
+  /* ---- 4. xray: the scanner sweeps the patient into bone-form, then
+   *      match the bone shown on the panel to the same one inside ---- */
+  const BONES = [
+    `<g transform="rotate(45 12 12)"><rect x="10" y="6" width="4" height="12"/><circle cx="9.7" cy="6" r="2.7"/><circle cx="14.3" cy="6" r="2.7"/><circle cx="9.7" cy="18" r="2.7"/><circle cx="14.3" cy="18" r="2.7"/></g>`,
+    `<circle cx="12" cy="10" r="7"/><rect x="8" y="15" width="8" height="5" rx="1.5"/><circle cx="9.3" cy="9.5" r="1.9" fill="#10222e"/><circle cx="14.7" cy="9.5" r="1.9" fill="#10222e"/>`,
+    `<rect x="11" y="3" width="2" height="18" rx="1"/><ellipse cx="12" cy="8" rx="7.5" ry="2.6" fill="none" stroke="#eaf6ff" stroke-width="2"/><ellipse cx="12" cy="13" rx="7.5" ry="2.6" fill="none" stroke="#eaf6ff" stroke-width="2"/><ellipse cx="12" cy="18" rx="6" ry="2.2" fill="none" stroke="#eaf6ff" stroke-width="2"/>`,
+    `<rect x="9" y="2" width="6" height="3.2" rx="1.4"/><rect x="9" y="6.4" width="6" height="3.2" rx="1.4"/><rect x="9" y="10.8" width="6" height="3.2" rx="1.4"/><rect x="9" y="15.2" width="6" height="3.2" rx="1.4"/><rect x="9" y="19.6" width="6" height="3.2" rx="1.4"/><rect x="5.6" y="11.2" width="12.8" height="2.4" rx="1.2"/>`,
+    `<ellipse cx="12" cy="15.5" rx="6" ry="5"/><circle cx="5" cy="9.5" r="2.5"/><circle cx="9.7" cy="6.5" r="2.5"/><circle cx="14.3" cy="6.5" r="2.5"/><circle cx="19" cy="9.5" r="2.5"/>`,
+    `<circle cx="5.5" cy="12" r="3.4"/><rect x="8" y="11" width="10" height="2"/><path d="M10 12 l3.5-4.5 M13 12 l3.5-4.5 M10 12 l3.5 4.5 M13 12 l3.5 4.5" stroke="#eaf6ff" stroke-width="1.8" fill="none"/><path d="M18 12 l4-4.5 v9 z"/>`,
+    `<path d="M12 21 C11.2 14 8.5 9 5.5 4.5 M12 21 C12.8 14 15.5 9 18.5 4.5" stroke="#eaf6ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+    `<path d="M5 5 v7 a7 7 0 0 0 14 0 V5" fill="none" stroke="#eaf6ff" stroke-width="2.6"/><rect x="6.4" y="5" width="2.6" height="4.6" rx="1"/><rect x="10.7" y="5" width="2.6" height="4.6" rx="1"/><rect x="15" y="5" width="2.6" height="4.6" rx="1"/>`,
+  ].map(inner => `<svg viewBox="0 0 24 24" fill="#eaf6ff">${inner}</svg>`);
+
+  const xray: Game = (ui, ctx, resolve) => {
+    ui.stage.innerHTML = `
+      <div class="xr-wrap">
+        <div class="xr-ghost">${ctx.petArt(150)}</div>
+        <div class="xr-normal">${ctx.petArt(150)}</div>
+        <div class="xr-line"></div>
+      </div>
+      <div class="xr-panel hidden">FIND THIS BONE<div class="xr-want"></div></div>`;
+    const wrap = ui.stage.querySelector<HTMLElement>(".xr-wrap")!;
+    const normal = ui.stage.querySelector<HTMLElement>(".xr-normal")!;
+    const lineEl = ui.stage.querySelector<HTMLElement>(".xr-line")!;
+    const panel = ui.stage.querySelector<HTMLElement>(".xr-panel")!;
+    const want = ui.stage.querySelector<HTMLElement>(".xr-want")!;
+    ui.msg.textContent = "Scanning... hold very still... 🩻";
+
+    let found = 0;
+    const NEED = 2;
+    function round() {
+      panel.classList.remove("hidden");
+      const order = [...BONES.keys()].sort(() => Math.random() - 0.5).slice(0, 6);
+      const target = order[Math.floor(Math.random() * order.length)];
+      want.innerHTML = BONES[target];
+      ui.msg.textContent = `Tap the same bone inside! ${"⭐".repeat(found)}${"⬜".repeat(NEED - found)}`;
+      wrap.querySelectorAll(".xr-bone").forEach(b => b.remove());
+      order.forEach((bi, k) => {
+        const b = document.createElement("div");
+        b.className = "xr-bone";
+        b.innerHTML = BONES[bi];
+        b.style.left = 16 + (k % 3) * 24 + rand(-3, 3) + "%";
+        b.style.top = 16 + Math.floor(k / 3) * 28 + rand(-4, 4) + "%";
+        b.style.rotate = rand(-30, 30) + "deg";
+        b.addEventListener("pointerdown", () => {
+          if (!running) return;
+          if (bi === target) {
+            Sound.good();
+            found++;
+            if (found >= NEED) finish(ui, resolve);
+            else round();
+          } else {
+            Sound.almost();
+            ui.msg.textContent = "Hmm, not that one — look very closely! 🔍";
+          }
+        });
+        wrap.appendChild(b);
+      });
+    }
+
+    const t0 = performance.now();
+    const SCAN = 2400;
+    requestAnimationFrame(function scan(t: number) {
+      if (!running) return;
+      const p = Math.min(1, (t - t0) / SCAN);
+      lineEl.style.left = p * 100 + "%";
+      normal.style.clipPath = `inset(0 0 0 ${p * 100}%)`; // bone-form appears behind the line
+      if (p < 1) requestAnimationFrame(scan);
+      else { lineEl.remove(); round(); }
+    });
+  };
 
   /* ---- 5. simon: repeat the medicine-bottle pattern ---- */
   const simon: Game = (ui, _ctx, resolve) => {
@@ -333,7 +403,34 @@ export const Minigames = (() => {
     place();
   };
 
-  const GAMES: Record<string, Game> = { heartbeat, hold, spot, xray, simon, slider, mash, bubbles, stars };
+  /* ---- 10. splinters: gently tweeze every prickle out ---- */
+  const splinters: Game = (ui, ctx, resolve) => {
+    ui.stage.innerHTML = `<div class="sp-pet">${ctx.petArt(150)}</div>`;
+    const NEED = 5;
+    let out = 0;
+    const show = () => { ui.msg.textContent = `Gently tweeze out every prickle! 🥢 ${"✨".repeat(out)}${"🌵".repeat(NEED - out)}`; };
+    show();
+    for (let i = 0; i < NEED; i++) {
+      const s = document.createElement("div");
+      s.className = "splinter";
+      s.style.left = rand(32, 64) + "%";
+      s.style.top = rand(26, 66) + "%";
+      s.style.setProperty("--rot", rand(-70, 70) + "deg");
+      s.style.animationDelay = rand(0, 0.8) + "s";
+      s.addEventListener("pointerdown", () => {
+        if (!running || s.classList.contains("plucked")) return;
+        Sound.pop();
+        s.classList.add("plucked");
+        setTimeout(() => s.remove(), 500);
+        out++;
+        show();
+        if (out >= NEED) finish(ui, resolve);
+      });
+      ui.stage.appendChild(s);
+    }
+  };
+
+  const GAMES: Record<string, Game> = { heartbeat, hold, spot, xray, simon, slider, mash, bubbles, stars, splinters };
 
   /* Play a tool's mini-game. Resolves when the player succeeds. */
   function play(tool: Tool, ctx: MgCtx): Promise<void> {

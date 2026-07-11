@@ -188,6 +188,19 @@ body {
 /* inline sprite (spriteInline): content-cropped, sits in text flow like an emoji */
 .s-in { display: inline-block; position: relative; overflow: hidden; vertical-align: middle; }
 .s-in .s-px { filter: none; }
+
+/* baked GBA-interior scenes + retro shutter wipe between rooms */
+.room-scene {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center 30%;
+  background-repeat: no-repeat; image-rendering: pixelated;
+}
+.room-wipe {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background: #0a1a22;
+  animation: room-wipe .5s steps(10) forwards;
+}
+@keyframes room-wipe { from { transform: translateX(0); } to { transform: translateX(102%); } }
 .sprite.enter { animation: walk-in 1s ease-out; }
 @keyframes walk-in { from { transform: translateX(340px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes pop-in { from { transform: scale(0); } to { transform: scale(1); } }
@@ -251,6 +264,44 @@ body {
 @keyframes twinkle { 0%,100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.15); } }
 .mg-pet-bg { font-size: 8.5rem; opacity: .35; pointer-events: none; }
 .mg-stage.dark .mg-pet-bg { opacity: .5; filter: grayscale(1) brightness(2.4); }
+
+/* xray: scanner sweep reveals the patient's bone-form, then match the bone */
+.xr-wrap { position: relative; align-self: stretch; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 8.5rem; }
+.xr-ghost, .xr-normal { pointer-events: none; }
+.xr-ghost { filter: invert(1) grayscale(1) brightness(1.5) drop-shadow(0 0 8px rgba(140, 210, 255, .9)); opacity: .95; }
+.xr-normal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.xr-line {
+  position: absolute; top: 2%; bottom: 2%; width: 4px; margin-left: -2px;
+  background: #cdeeff; box-shadow: 0 0 16px 5px rgba(110, 200, 255, .8);
+}
+.xr-panel {
+  position: absolute; right: 6px; top: 6px; z-index: 2;
+  border: 3px solid #7fd4ff; border-radius: 8px; background: rgba(8, 26, 38, .85);
+  padding: 6px 10px; font-size: .55rem; color: #bfe9ff; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.xr-panel.hidden { display: none; }
+.xr-want svg { width: 42px; height: 42px; filter: drop-shadow(0 0 5px rgba(140, 210, 255, .9)); }
+.xr-bone { position: absolute; width: 38px; height: 38px; cursor: pointer; z-index: 1; }
+.xr-bone svg { width: 100%; height: 100%; filter: drop-shadow(0 0 4px rgba(140, 210, 255, .75)); }
+.xr-bone:hover svg { filter: drop-shadow(0 0 8px rgba(190, 235, 255, 1)); }
+
+/* splinters: prickles stuck in the patient, tap to tweeze out */
+.sp-pet { pointer-events: none; font-size: 8.5rem; }
+.splinter {
+  position: absolute; width: 6px; height: 26px; cursor: pointer;
+  background: linear-gradient(#a06a33, #5d3a17);
+  border-radius: 3px; transform: rotate(var(--rot));
+  box-shadow: 0 0 8px 2px rgba(255, 120, 120, .75);
+  animation: sp-throb 1s ease-in-out infinite;
+}
+.splinter::after { content: ""; position: absolute; inset: -8px; } /* kid-sized tap area */
+.splinter.plucked { animation: sp-pluck .5s ease-out forwards; pointer-events: none; }
+@keyframes sp-throb { 50% { box-shadow: 0 0 12px 4px rgba(255, 120, 120, .95); } }
+@keyframes sp-pluck {
+  30% { transform: rotate(var(--rot)) translateY(-14px); opacity: 1; }
+  100% { transform: rotate(var(--rot)) translateY(-52px); opacity: 0; }
+}
 
 /* simon */
 .simon-row { display: flex; gap: 16px; }
